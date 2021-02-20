@@ -151,14 +151,14 @@ class RealPathUtil {
                 // Fall back to writing to file if _data column does not exist
                 final int index = cursor.getColumnIndex(MediaStore.MediaColumns.DATA);
                 String path = index > -1 ? cursor.getString(index) : null;
-                if (path != null) {
-                    return cursor.getString(index);
-                } else {
+                // if (path != null) {
+                //     return cursor.getString(index);
+                // } else {
                     final int indexDisplayName = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
                     String fileName = cursor.getString(indexDisplayName);
                     File fileWritten = writeToFile(context, fileName, uri);
                     return fileWritten.getAbsolutePath();
-                }
+                // }
             }
         } finally {
             if (cursor != null)
