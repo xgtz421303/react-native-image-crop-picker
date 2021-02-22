@@ -9,11 +9,13 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 class RealPathUtil {
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -107,18 +109,24 @@ class RealPathUtil {
         Boolean created = new File(tmpDir).mkdir();
         fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
         File path = new File(tmpDir);
-        File file = new File(path, fileName);
+        File file = new File(path, UUID.randomUUID().toString() + "_" + fileName );
+
+        Log.d("RealPathUtil","Before writeToFileImp");
+
         try {
-            FileOutputStream oos = new FileOutputStream(file);
-            byte[] buf = new byte[8192];
-            InputStream is = context.getContentResolver().openInputStream(uri);
-            int c = 0;
-            while ((c = is.read(buf, 0, buf.length)) > 0) {
-                oos.write(buf, 0, c);
-                oos.flush();
+            try (InputStream in = context.getContentResolver().openInputStream(uri)) {
+                // Log.d("RealPathUtil", "InputStream");
+                try (FileOutputStream oos = new FileOutputStream(file)) {
+                    // Log.d("RealPathUtil", "FileOutputStream");
+                    byte[] buf = new byte[8192];
+                    int len = 0;
+                    while ((len = in.read(buf)) > 0) {
+                        // Log.d("RealPathUtil", "oos.write");
+                        oos.write(buf, 0, len);
+                    }
+                }
             }
-            oos.close();
-            is.close();
+            Log.d("RealPathUtil","After writeToFileImp" + file.getAbsolutePath());
         } catch (Exception e) {
             e.printStackTrace();
         }
